@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: ocp-vip
-      image: quay.io/williamcaban/ocp-vip
+      image: quay.io/wcaban/ocp-vip
       command: [ "keepalived", "-P", "-D", "-l", "-n", "-f /keepalived.conf" ]
       volumeMounts:
       - name: keepalived-conf
