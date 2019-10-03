@@ -2,16 +2,28 @@ apiVersion: v1
 kind: Pod
 metadata:
   generateName: ingress-vip-
+  annotations:
+    openshift.io/scc: hostnetwork
+  namespace: ocp-vip
+  labels:
+    ocp-vip: ingress-vip
 spec:
   affinity:
-    nodeAffinity:
+    # nodeAffinity:
+    #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     nodeSelectorTerms:
+    #     - matchFields:
+    #       - key: node-role.kubernetes.io/master
+    #         operator: Exists
+    podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchFields:
-          - key: node-role.kubernetes.io/master
+      - labelSelector:
+          matchExpressions:
+          - key: ocp-vip
             operator: In
             values:
-            - ""
+            - ingress-vip
+        topologyKey: kubernetes.io/hostname
   containers:
     - name: ocp-vip
       image: quay.io/wcaban/ocp-vip
@@ -29,15 +41,23 @@ spec:
     requests:
       cpu: 200m
       memory: 100Mi
-#  securityContext:
-#    privileged: true
+  securityContext:
+   privileged: true
   hostNetwork: true
-  serviceAccountName: ocp-vip-sa
+  # serviceAccountName: ocp-vip-sa
   terminationGracePeriodSeconds: 30
-  tolerations:
-  - effect: NoExecute
-    operator: Exists
-  - effect: NoSchedule
-    key: node.kubernetes.io/memory-pressure
-    operator: Exists
-  - operator: Exists
+  nodeSelector:
+    kubernetes.io/os: linux
+    node-role.kubernetes.io/master: ""
+  # tolerations:
+  # - effect: NoSchedule
+  #   key: node.kubernetes.io/memory-pressure
+  #   operator: Exists
+  # - effect: NoExecute
+  #   key: node.kubernetes.io/unreachable
+  #   operator: Exists
+  #   tolerationSeconds: 300
+  # - effect: NoExecute
+  #   key: node.kubernetes.io/not-ready
+  #   operator: Exists
+  #   tolerationSeconds: 300
