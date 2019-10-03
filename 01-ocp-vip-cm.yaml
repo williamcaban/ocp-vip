@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keepalived-conf
+  namespace: ocp-vip
+data:
+  config: |
+    global_defs {
+      router_id ocp-vip
+    }
+    vrrp_script check-api-mcs {
+      script "/check-api-msc.sh"
+      interval 10
+      weight 5
+      rise 1
+    }
+
+    vrrp_script check-ocp-router {
+      script "/check-router.sh"
+      interval 10
+      weight 5
+      rise 1
+    }
+
+    vrrp_instance API-MCS {
+      virtual_router_id 50
+      advert_int 1
+      priority 100
+      state MASTER
+      interface eth0
+      virtual_ipaddress {
+        198.18.100.100 dev eth0
+      }
+      track_script {
+        check-api-mcs
+      }
+    }
+
+    vrrp_instance OCP-ROUTER {
+      virtual_router_id 51
+      advert_int 1
+      priority 100
+      state MASTER
+      interface eth0
+      virtual_ipaddress {
+        198.18.100.101 dev eth0
+      }
+      track_script {
+        check-ocp-router
+      }
+    }

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ocp-vip-pod
+spec:
+  containers:
+    - name: ocp-vip
+      image: quay.io/williamcaban/ocp-vip
+      command: [ "keepalived", "-P", "-D", "-l", "-n", "-f /keepalived.conf" ]
+      volumeMounts:
+      - name: keepalived-conf
+        mountPath: /keepalived.conf
+  volumes:
+    - name: keepalived-conf
+      configMap:
+        name: keepalived-conf
+  restartPolicy: Always

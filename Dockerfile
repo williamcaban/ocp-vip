@@ -1,0 +1,15 @@
+FROM quay.io/fedora/fedora:32-x86_64
+
+RUN dnf install --setopt=tsflags=nodocs -y \
+    iproute bind-utils iputils keepalived && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+ADD check-api-mcs.sh /
+ADD check-router.sh  /
+
+LABEL   io.k8s.display-name="OCP VIP" \
+        io.k8s.description="OCP VIP functionality" \
+        io.openshift.tags="ocp-vip"
+
+ENTRYPOINT /bin/bash -c "sleep infinity"
