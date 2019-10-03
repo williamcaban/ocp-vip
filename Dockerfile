@@ -5,9 +5,6 @@ RUN dnf install --setopt=tsflags=nodocs -y \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
-ADD check-api-mcs.sh /
-ADD check-router.sh  /
-
 LABEL   io.k8s.display-name="OCP VIP" \
         io.k8s.description="OCP VIP functionality" \
         io.openshift.tags="ocp-vip"

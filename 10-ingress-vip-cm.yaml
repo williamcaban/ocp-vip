@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-vip-conf
+  namespace: ocp-vip
+data:
+  config: |
+    global_defs {
+      router_id ocp-vip
+    }
+
+    vrrp_script check-ocp-ingress {
+      script "/check-ingress.sh"
+      interval 10
+      weight 5
+      rise 1
+    }
+
+    vrrp_instance OCP-INGRESS {
+      virtual_ingress_id 51
+      advert_int 1
+      priority 100
+      state MASTER
+      interface eth0
+      virtual_ipaddress {
+        198.18.100.101 dev eth0
+      }
+      track_script {
+        check-ocp-ingress
+      }
+    }
