@@ -113,3 +113,7 @@ apps        IN A        198.18.100.200
 *.apps      IN CNAME    apps.ocp4poc.example.com.
 
 ```
+
+# Creating Custom VIP Instances
+
+See [CUSTOM_VIP.md](CUSTOM_VIP.md) for instructions on how to create custom VIP instances.
