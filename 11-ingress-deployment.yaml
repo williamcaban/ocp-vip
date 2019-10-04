@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-mcs-vip
+  name: ingress-vip
   labels:
-    app: api-mcs-vip
-    vip: api-mcs-vip
+    app: ingress-vip
+    vip: ingress-vip
   namespace: ocp-vip
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: api-mcs-vip
-      vip: api-mcs-vip
+      app: ingress-vip
+      vip: ingress-vip
   template:
     metadata:
       labels:
-        app: api-mcs-vip
-        vip: api-mcs-vip
+        app: ingress-vip
+        vip: ingress-vip
     spec:
       affinity:
         podAntiAffinity:
@@ -26,20 +26,20 @@ spec:
               - key: vip
                 operator: In
                 values:
-                - api-mcs-vip
+                - ingress-vip
             topologyKey: kubernetes.io/hostname
       containers:
       - name: ocp-vip
         image: quay.io/wcaban/ocp-vip
         imagePullPolicy: Always
-        command: [ "/entrypont.sh" ]
+        command: [ "/entrypoint.sh" ]
         volumeMounts:
         - name: vip-configuration
           mountPath: /vip
       volumes:
         - name: vip-configuration
           configMap:
-            name: api-mcs-vip-conf
+            name: ingress-vip-conf
       restartPolicy: Always
       resources:
         requests:

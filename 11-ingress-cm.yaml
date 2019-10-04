@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-vip-conf
+  namespace: ocp-vip
+data:
+  keepalived.conf: |
+    global_defs {
+      router_id ocp-vip
+    }
+    vrrp_script probe_script {
+      script "/bin/sh -c /vip/probe.sh"
+      interval 10
+      weight 5
+      rise 1
+    }
+    vrrp_instance VIP {
+      virtual_router_id 51
+      advert_int 1
+      priority 100
+      state MASTER
+      interface ens3
+      virtual_ipaddress {
+        198.18.100.101 dev ens3
+      }
+      track_script {
+        probe_script
+      }
+    }
+  probe.sh: |
+    #!/bin/bash
+
+    TARGET_IP="localhost"
+
+    OCP_INGRESS_HEALTHZ=`curl -o /dev/null -s -w "%{http_code}" -k https://${TARGET_IP}:1936/healthz`
+
+    if [ "${OCP_INGRESS_HEALTHZ}" -eq "200" ]; then
+        exit 0
+    else
+        exit 1
+    fi
