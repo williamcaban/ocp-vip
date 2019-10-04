@@ -9,19 +9,19 @@ data:
       router_id ocp-vip
     }
     vrrp_script probe_script {
-      script "/bin/sh -c /probe.sh"
+      script "/bin/sh -c /vip/probe.sh"
       interval 10
       weight 5
       rise 1
     }
     vrrp_instance VIP {
-      virtual_ingress_id 50
+      virtual_router_id 50
       advert_int 1
       priority 100
       state MASTER
-      interface eth0
+      interface ens3
       virtual_ipaddress {
-        198.18.100.100 dev eth0
+        198.18.100.100 dev ens3
       }
       track_script {
         probe_script

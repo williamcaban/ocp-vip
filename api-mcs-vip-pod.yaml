@@ -27,7 +27,7 @@ spec:
   containers:
     - name: ocp-vip
       image: quay.io/wcaban/ocp-vip
-      command: [ "keepalived", "-P", "-D", "-l", "-n", "-f /keepalived.conf" ]
+      command: [ "keepalived", "-P", "-D", "-l", "-n", "-f /vip/keepalived.conf" ]
       volumeMounts:
       - name: vip-configuration
         mountPath: /
