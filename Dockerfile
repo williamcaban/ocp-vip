@@ -9,6 +9,8 @@ LABEL   io.k8s.display-name="OCP VIP" \
         io.k8s.description="OCP VIP functionality" \
         io.openshift.tags="ocp-vip"
 
+ENV     NODE_NAME "localhost"
+
 ADD ./Scripts/entrypoint.sh /
 
 ENTRYPOINT /bin/bash -c "sleep infinity"
