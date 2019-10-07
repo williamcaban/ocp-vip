@@ -52,11 +52,6 @@ spec:
         requests:
           cpu: 200m
           memory: 100Mi
-      env: 
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
       hostNetwork: true
       serviceAccountName: ocp-vip-sa
       terminationGracePeriodSeconds: 30
