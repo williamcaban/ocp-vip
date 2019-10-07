@@ -32,6 +32,11 @@ spec:
       - name: ocp-vip
         image: quay.io/wcaban/ocp-vip
         imagePullPolicy: Always
+        env: 
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         command: [ "/entrypoint.sh" ]
         securityContext:
           privileged: true
