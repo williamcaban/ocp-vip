@@ -4,7 +4,7 @@
 
 Create MachineConfig with the configuration for `keepalived.conf`. Each one of the `keys` in the data section will be a file under `/vip` inside the VIP container. For example, a key with the name of `key_name` will end up as `/vip/key_name`.
 
-The resulting files are read only files. When using a key to provide a track script, the `script` statement must take this into consideration to be able to execute it. For example, using the `/bin/sh -c /vip/key_name` to run the track script.
+The resulting files are read only files. When using a key to provide a track script, the `script` statement must take this into consideration to be able to execute it. For example, using the `/bin/sh -c /vip/key_name` to run the track script. To customize priority or other `keepalived` configurations, create `key_name` with the FQDN of the Node. The OCP VIP Pod knows the name of the Node executing it and it will check if a file `/vip/<node_name>.conf` exist, and use that as the keepalived configuration in that Pod instance.
 
 ```
 apiVersion: v1
@@ -24,13 +24,36 @@ data:
       rise 1
     }
     vrrp_instance VIP {
-      virtual_router_id 51
+      virtual_router_id 55
       advert_int 1
       priority 100
       state MASTER
       interface ens3
       virtual_ipaddress {
-        198.18.100.201 dev ens3
+        198.18.100.200 dev ens3 label ens3:vip55
+      }
+      track_script {
+        probe_script
+      }
+    }
+  master-1.ocp4poc.example.com.conf: |
+    global_defs {
+      router_id ocp-vip
+    }
+    vrrp_script probe_script {
+      script "/bin/sh -c /vip/probe.sh"
+      interval 10
+      weight 5
+      rise 1
+    }
+    vrrp_instance VIP {
+      virtual_router_id 55
+      advert_int 1
+      priority 110
+      state MASTER
+      interface ens3
+      virtual_ipaddress {
+        198.18.100.200 dev ens3 label ens3:vip55
       }
       track_script {
         probe_script
@@ -41,9 +64,10 @@ data:
 
     TARGET_IP="localhost"
 
-    OCP_INGRESS_HEALTHZ=`curl -o /dev/null -s -w "%{http_code}" -k https://${TARGET_IP}:1936/healthz`
+    API_HEALTHZ=`curl -o /dev/null -s -w "%{http_code}" -k https://${TARGET_IP}:6443/healthz`
+    MCS_HEALTHZ=`curl -o /dev/null -s -w "%{http_code}" -k https://${TARGET_IP}:22623/healthz`
 
-    if [ "${OCP_INGRESS_HEALTHZ}" -eq "200" ]; then
+    if [ "${API_HEALTHZ}" -eq "200" ] && [ "${MCS_HEALTHZ}" -eq "200" ]; then
         exit 0
     else
         exit 1
